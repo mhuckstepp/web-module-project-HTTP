@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
 
-const EditMovieForm = (props) => {
+const AddMovieForm = (props) => {
   const { push } = useHistory();
-  const { id } = useParams();
-  const { movies, setMovies } = props;
+  const { setMovies } = props;
 
   const [movie, setMovie] = useState({
     title: "",
@@ -16,16 +15,6 @@ const EditMovieForm = (props) => {
     metascore: 0,
     description: "",
   });
-
-  useEffect(() => {
-    let currMov = movies[id];
-    setMovie({
-      ...movie,
-      title: currMov.title,
-      director: currMov.director,
-      metascore: currMov.metascore,
-    });
-  }, []);
 
   const handleChange = (e) => {
     setMovie({
@@ -37,25 +26,17 @@ const EditMovieForm = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     let newStateMovie = {
-      id: id,
       title: movie.title,
       director: movie.director,
       metascore: movie.metascore,
-      stars: movies[id].stars,
+      stars: [],
     };
     axios
-      .put(`http://localhost:5000/api/movies/${id}`, newStateMovie)
+      .post(`http://localhost:5000/api/movies/`, newStateMovie)
       .then((res) => {
-        let newStateMovies = movies.map((movie) => {
-          console.log(typeof movie.id, typeof id);
-          if (Number(movie.id) === Number(id)) {
-            return newStateMovie;
-          } else {
-            return movie;
-          }
-        });
-        setMovies(newStateMovies);
-        push(`/movies/${id}`);
+        console.log(res.data);
+        setMovies(res.data);
+        push(`/movies`);
       })
       .catch((err) => console.log(err));
   };
@@ -68,7 +49,7 @@ const EditMovieForm = (props) => {
         <form onSubmit={handleSubmit}>
           <div className="modal-header">
             <h4 className="modal-title">
-              Editing <strong>{movie.title}</strong>
+              Add a new movie! <strong>{movie.title}</strong>
             </h4>
           </div>
           <div className="modal-body">
@@ -134,4 +115,4 @@ const EditMovieForm = (props) => {
   );
 };
 
-export default EditMovieForm;
+export default AddMovieForm;
